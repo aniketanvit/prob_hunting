@@ -1,7 +1,7 @@
-from custom_enums import Terrain
-from gui import LandscapeGUI
 import random
 import numpy as np
+from gui import LandscapeGUI
+from custom_enums import Terrain
 
 class ProbabilisticHunting:
 
@@ -22,6 +22,7 @@ class ProbabilisticHunting:
         self.target_j = 1
 
         self._initialiseMap()
+        self.initialiseBelief()
 
     def getMap(self):
         return self.Map
@@ -74,7 +75,6 @@ class ProbabilisticHunting:
                 count -= 1
 
         self._setTarget()
-        self.initialise_belief()
 
     def _setTarget(self):
         self.target_i = random.randint(0, self.dimension - 1)
@@ -86,7 +86,7 @@ class ProbabilisticHunting:
                 print(self.Map[i][j].name, end = " ")
             print()
 
-    def initialise_belief(self):
+    def initialiseBelief(self):
         for i in range(0, self.dimension):
             self.Belief.append([])
             for j in range(0, self.dimension):
@@ -119,29 +119,49 @@ class ProbabilisticHunting:
     # search Belief for the highest probability
     # if more than one found, select random
     def getNextSearchCell(self):
+        # self.Belief[0][3] = 0.02
+        # self.Belief[2][2] = 0.02
+        # self.Belief[2][3] = 0.02
         arrayBelief = np.array(self.Belief)
-        minBelief = np.where(arrayBelief == arrayBelief.min())
+        # print(arrayBelief)
+        minBelief = np.where(arrayBelief == arrayBelief.max())
         if(len(minBelief[0]) > 1):
+            # choice = random.choice(minBelief[0])
             choicePos = random.randrange(len(minBelief[0]))
-            print(minBelief[0])
+            # choicePos = np.where( minBelief[0] == choice)[0][0]
+            # print(minBelief[0])
+            # print(np.where( minBelief[0] == choice)[0][0])
+            # print(choice)
+            # print(minBelief[0][choicePos], minBelief[1][choicePos])
             return minBelief[0][choicePos], minBelief[1][choicePos]
         else:
+            # print(minBelief[0][0], minBelief[1][0])
             return minBelief[0][0], minBelief[1][0]
 
     def startHunt(self):
-
         while(True):
             (i, j) = self.getNextSearchCell()
+            print('Target in: ' + str(self.target_i) + ', ' + str(self.target_j))
+            print(self.Map[self.target_i][self.target_j])
+            print('Searching: ' + str(i) + ', ' + str(j) + '\n')
+            sameSearch = 0
+            if(i == self.target_i and j == self.target_j):
+                sameSearch += 1
             found = self.targetFound(i, j)
             if(found):
-                print("!! FOUND IT !!")
+                print("Target Found")
+                print('Time: ' + str(self.currentTime))
+                print('Target Cell Searched: ' + str(sameSearch))
                 break
             else:
                 self.updateBelief(i, j)
+                # self.currentTime += 1
+
 
 if __name__ == '__main__':
     ph = ProbabilisticHunting(50)
-    root = Tk ()
-    grid = LandscapeGUI (root)
-    grid.paint_map (ph.getMap())
-    root.mainloop ()
+    # ph.startHunt()
+    # root = Tk ()
+    # grid = LandscapeGUI (root)
+    # grid.paint_map (ph.getMap())
+    # root.mainloop ()
