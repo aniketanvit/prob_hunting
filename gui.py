@@ -1,5 +1,5 @@
 from tkinter import Tk
-from tkinter import Canvas, Frame, BOTH
+from tkinter import Canvas, Frame, BOTH, Text
 from custom_enums import Terrain
 
 class LandscapeGUI (Frame):
@@ -39,3 +39,17 @@ class LandscapeGUI (Frame):
             x0, y0, x1, y1,
             fill=color, tags="cursor"
         )
+
+    def updateData(self, matrix):
+        deltax = self.HEIGHT/len(matrix)
+        deltay = self.WIDTH/len(matrix[0])
+        rows = len (matrix)
+        cols = len (matrix[0])
+
+        for i in range (0, rows):
+            for j in range (0, cols):
+                x0 = i * deltax
+                x1 = x0 + deltax
+                y0 = j * deltay
+                y1 = y0 + deltay
+                self.canvas.create_text ((x0 + x1) // 2, (y0 + y1) // 2, text= "(%f)" % (matrix[i][j]))

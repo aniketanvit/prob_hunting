@@ -1,6 +1,7 @@
 from custom_enums import Terrain
 from probabilistic_hunting import ProbabilisticHunting
 import random
+import numpy as np
 
 class ProbabilisticHunting_TargetPresent (ProbabilisticHunting):
 
@@ -34,5 +35,11 @@ class ProbabilisticHunting_TargetPresent (ProbabilisticHunting):
 
         self.currentTime += 1
 
-if __name__ == '__main__':
-    ph = ProbabilisticHunting(50)
+    def getNextSearchCell(self):
+        arrayBelief = np.array(self.Belief)
+        minBelief = np.where(arrayBelief == arrayBelief.max())
+        if(len(minBelief[0]) > 1):
+            choicePos = random.randrange(len(minBelief[0]))
+            return minBelief[0][choicePos], minBelief[1][choicePos]
+        else:
+            return minBelief[0][0], minBelief[1][0]

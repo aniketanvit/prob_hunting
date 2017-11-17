@@ -119,24 +119,7 @@ class ProbabilisticHunting:
     # search Belief for the highest probability
     # if more than one found, select random
     def getNextSearchCell(self):
-        # self.Belief[0][3] = 0.02
-        # self.Belief[2][2] = 0.02
-        # self.Belief[2][3] = 0.02
-        arrayBelief = np.array(self.Belief)
-        # print(arrayBelief)
-        minBelief = np.where(arrayBelief == arrayBelief.max())
-        if(len(minBelief[0]) > 1):
-            # choice = random.choice(minBelief[0])
-            choicePos = random.randrange(len(minBelief[0]))
-            # choicePos = np.where( minBelief[0] == choice)[0][0]
-            # print(minBelief[0])
-            # print(np.where( minBelief[0] == choice)[0][0])
-            # print(choice)
-            # print(minBelief[0][choicePos], minBelief[1][choicePos])
-            return minBelief[0][choicePos], minBelief[1][choicePos]
-        else:
-            # print(minBelief[0][0], minBelief[1][0])
-            return minBelief[0][0], minBelief[1][0]
+        pass
 
     def startHunt(self):
         while(True):
@@ -156,12 +139,4 @@ class ProbabilisticHunting:
             else:
                 self.updateBelief(i, j)
                 # self.currentTime += 1
-
-
-if __name__ == '__main__':
-    ph = ProbabilisticHunting(50)
-    # ph.startHunt()
-    # root = Tk ()
-    # grid = LandscapeGUI (root)
-    # grid.paint_map (ph.getMap())
-    # root.mainloop ()
+        return self.currentTime

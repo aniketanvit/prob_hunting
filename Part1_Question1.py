@@ -11,5 +11,5 @@ if __name__ == '__main__':
         row_index = int(input("Enter the row of cell to search: "))
         col_index = int(input("Enter the col of cell to search: "))
         bot.updateBelief(row_index, col_index)
-        print("Belief at the cell (%d, %d) after time %d is %f." % (given_cell_row, given_cell_col,
+        print("Belief for target being present at cell (%d, %d) after time %d is %f." % (given_cell_row, given_cell_col,
               bot.currentTime, bot.Belief[given_cell_row][given_cell_col]))
