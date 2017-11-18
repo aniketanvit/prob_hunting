@@ -46,9 +46,6 @@ class ProbabilisticHunting_TargetFound(ProbabilisticHunting):
             for jj in range (0, self.dimension):
                 self.Belief_Found[ii][jj] /= temp_beta
 
-        print(self.Belief_Found)
-        print()
-
 
     def getBelief(self):
         return self.Belief_Found
@@ -100,5 +97,8 @@ class ProbabilisticHunting_TargetFound(ProbabilisticHunting):
         for ii in range (0, self.dimension):
             for jj in range (0, self.dimension):
                 self.Belief_Found[ii][jj] /= temp_beta
-        print(self.Belief_Found)
-        print()
+
+    def reset (self):
+        super(ProbabilisticHunting_TargetFound, self).reset()
+        self.Belief_Found = []
+        self._initializeBeliefFound()

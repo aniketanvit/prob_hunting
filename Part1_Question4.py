@@ -24,7 +24,7 @@ class ProbabilisticHunting_WithCost_Rule1(ProbabilisticHunting_TargetPresent):
     def updateUtility(self):
         for i in range(0, self.dimension):
             for j in range(0, self.dimension):
-                self.Utility[i][j] = (self.Belief[i][j] * ((2 * self.dimension) - 1)) + math.fabs(self.lastSearched_i - i) + math.fabs(self.lastSearched_j - j)
+                self.Utility[i][j] = (self.Belief[i][j] - (math.fabs (self.lastSearched_i - i + self.lastSearched_j - j)) / ((25 * self.dimension) - 1))
 
     def getNextSearchCell (self):
         temp_list = []
@@ -65,7 +65,7 @@ class ProbabilisticHunting_WithCost_Rule2 (ProbabilisticHunting_TargetFound):
     def updateUtility(self):
         for i in range(0, self.dimension):
             for j in range(0, self.dimension):
-                self.Utility[i][j] = (self.Belief_Found[i][j] * ((2 * self.dimension) - 1)) + math.fabs(self.lastSearched_i - i) + math.fabs(self.lastSearched_j - j)
+                self.Utility[i][j] = (self.Belief_Found[i][j] - (math.fabs (self.lastSearched_i - i + self.lastSearched_j - j)) / ((25 * self.dimension) - 1))
 
     def getNextSearchCell (self):
         temp_list = []

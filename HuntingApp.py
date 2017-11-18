@@ -24,7 +24,7 @@ class HuntingApp(tk.Tk):
         self.paint_last_searched_cell()
         self.paint_target_cell()
         self.updateLandscape(self.bot.getBelief())
-        self.after(1000, self.NextSearch)
+        self.after(2000, self.NextSearch)
 
     def paint_map (self, matrix):
 

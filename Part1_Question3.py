@@ -6,8 +6,8 @@ import random
 
 def main():
 
-    bot_for_target_found = ProbabilisticHunting_TargetFound (5)
-    bot_for_target_present = ProbabilisticHunting_TargetPresent (5)
+    bot_for_target_found = ProbabilisticHunting_TargetFound (20)
+    bot_for_target_present = ProbabilisticHunting_TargetPresent (20)
 
     bot_for_target_found.Map = copy.deepcopy (bot_for_target_present.getMap ())
 
@@ -31,11 +31,14 @@ def main():
         time_taken = bot_for_target_present.startHunt ()
         PRESENT_PERFORMANCE.append (time_taken)
 
+        bot_for_target_present.reset()
+        bot_for_target_found.reset()
+
     print(PRESENT_PERFORMANCE)
     print(FOUND_PERFORMANCE)
-    plt.plot (PRESENT_PERFORMANCE, FOUND_PERFORMANCE, linestyle='--', marker='o', color='b')
-    plt.ylabel ('Searches taken to search the target using Rule 1')
-    plt.xlabel ('Searches taken to search the target using Rule 2')
+    plt.plot (PRESENT_PERFORMANCE, FOUND_PERFORMANCE, linestyle='', marker='o', color='b')
+    plt.ylabel ('Searches taken using Rule 1')
+    plt.xlabel ('Searches taken using Rule 2')
     plt.title ('Performance measure - Rule 1 vs Rule 2')
     plt.show ()
 

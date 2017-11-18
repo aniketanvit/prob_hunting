@@ -99,6 +99,12 @@ class ProbabilisticHunting:
     def updateBelief(self, i, j):
         raise NotImplementedError ("updateBelief not implemented. Implement Override")
 
+    def reset(self):
+        self.Belief = []
+        self.currentTime = 0
+        self.target_found = False
+        self.initialiseBelief()
+
     def isTargetFound(self, i, j):
 
         success_probability = 1
