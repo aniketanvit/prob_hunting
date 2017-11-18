@@ -1,15 +1,13 @@
 import random
-import numpy as np
-from gui import LandscapeGUI
 from custom_enums import Terrain
 
 class ProbabilisticHunting:
-
+    """Abstract class for the probabilistic hunting bot"""
     def __init__(self, dimension):
         self.Map = []
         self.Belief = []
         self.dimension = dimension
-
+        self.target_found = False
         self.currentTime = 0
         self.beta = 1
 
@@ -20,6 +18,9 @@ class ProbabilisticHunting:
 
         self.target_i = 1
         self.target_j = 1
+
+        self.lastSearched_i = -1
+        self.lastSearched_j = -1
 
         self._initialiseMap()
         self.initialiseBelief()
@@ -86,6 +87,9 @@ class ProbabilisticHunting:
                 print(self.Map[i][j].name, end = " ")
             print()
 
+    def getBelief(self):
+        raise NotImplementedError ("getBelief not implemented. Implement Override")
+
     def initialiseBelief(self):
         for i in range(0, self.dimension):
             self.Belief.append([])
@@ -93,9 +97,9 @@ class ProbabilisticHunting:
                 self.Belief[i].append(1/(self.dimension * self.dimension))
 
     def updateBelief(self, i, j):
-        pass
+        raise NotImplementedError ("updateBelief not implemented. Implement Override")
 
-    def targetFound(self, i, j):
+    def isTargetFound(self, i, j):
 
         success_probability = 1
 
@@ -119,24 +123,38 @@ class ProbabilisticHunting:
     # search Belief for the highest probability
     # if more than one found, select random
     def getNextSearchCell(self):
-        pass
+        #override in the child class
+        raise NotImplementedError ("getNextSearchCell not implemented. Implement Override in child class")
 
     def startHunt(self):
         while(True):
-            (i, j) = self.getNextSearchCell()
-            print('Target in: ' + str(self.target_i) + ', ' + str(self.target_j))
-            print(self.Map[self.target_i][self.target_j])
-            print('Searching: ' + str(i) + ', ' + str(j) + '\n')
-            sameSearch = 0
-            if(i == self.target_i and j == self.target_j):
-                sameSearch += 1
-            found = self.targetFound(i, j)
+            (self.lastSearched_i, self.lastSearched_j) = self.getNextSearchCell()
+            # print('Target in: ' + str(self.target_i) + ', ' + str(self.target_j))
+            # print(self.Map[self.target_i][self.target_j])
+            # print('Searching: ' + str(i) + ', ' + str(j) + '\n')
+            # sameSearch = 0
+            # if(self.lastSearched_i == self.target_i and self.lastSearched_j == self.target_j):
+            #     sameSearch += 1
+            found = self.isTargetFound(self.lastSearched_i, self.lastSearched_j)
             if(found):
                 print("Target Found")
                 print('Time: ' + str(self.currentTime))
-                print('Target Cell Searched: ' + str(sameSearch))
+                # print('Target Cell Searched: ' + str(sameSearch))
                 break
             else:
-                self.updateBelief(i, j)
-                # self.currentTime += 1
+                self.updateBelief(self.lastSearched_i, self.lastSearched_j)
         return self.currentTime
+
+    def RunStep(self):
+        if(self.target_found == True):
+            return True
+
+        (self.lastSearched_i, self.lastSearched_j) = self.getNextSearchCell ()
+        found = self.isTargetFound(self.lastSearched_i, self.lastSearched_j)
+        if(found):
+            self.target_found = True
+            print("Target Found")
+        else:
+            self.updateBelief(self.lastSearched_i, self.lastSearched_j)
+        self.currentTime += 1
+        return found

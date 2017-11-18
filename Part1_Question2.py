@@ -1,6 +1,5 @@
 from probabilistic_hunting_target_found import ProbabilisticHunting_TargetFound
 
-
 if __name__ == '__main__':
     bot = ProbabilisticHunting_TargetFound(5)
     required_time = int(input("Enter the timestep at which you want to compute Belief : "))

@@ -1,7 +1,6 @@
 from custom_enums import Terrain
 from probabilistic_hunting import ProbabilisticHunting
 import random
-import numpy as np
 
 class ProbabilisticHunting_TargetPresent (ProbabilisticHunting):
 
@@ -18,11 +17,7 @@ class ProbabilisticHunting_TargetPresent (ProbabilisticHunting):
         else:
             scaling_factor = self.NotFound_given_Present_Cave
 
-        belief_present = self.Belief[i][j]
-
-        belief_present = belief_present * scaling_factor
-
-        self.Belief[i][j] = belief_present
+        self.Belief[i][j] *= scaling_factor
 
         self.beta = 0
         for ii in range (0, self.dimension):
@@ -35,11 +30,25 @@ class ProbabilisticHunting_TargetPresent (ProbabilisticHunting):
 
         self.currentTime += 1
 
+    def getBelief(self):
+        return self.Belief
+
     def getNextSearchCell(self):
-        arrayBelief = np.array(self.Belief)
-        minBelief = np.where(arrayBelief == arrayBelief.max())
-        if(len(minBelief[0]) > 1):
-            choicePos = random.randrange(len(minBelief[0]))
-            return minBelief[0][choicePos], minBelief[1][choicePos]
+        temp_list = []
+        last_i = -1
+        last_j = -1
+        max_val = -1
+        for i in range(0, self.dimension):
+            for j in range(0, self.dimension):
+                if(self.Belief[i][j] > max_val):
+                    max_val = self.Belief[i][j]
+                    last_i = i
+                    last_j = j
+                elif(max_val == self.Belief[i][j]):
+                    temp_list.append([i, j])
+
+        if(len(temp_list) > 1):
+            random_index = random.randint(0, len(temp_list)-1)
+            return (temp_list[random_index][0], temp_list[random_index][1])
         else:
-            return minBelief[0][0], minBelief[1][0]
+            return (last_i, last_j)
