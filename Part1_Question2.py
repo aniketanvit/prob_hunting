@@ -1,7 +1,7 @@
 from probabilistic_hunting_target_found import ProbabilisticHunting_TargetFound
 
 if __name__ == '__main__':
-    bot = ProbabilisticHunting_TargetFound(5)
+    bot = ProbabilisticHunting_TargetFound(50)
     required_time = int(input("Enter the timestep at which you want to compute Belief : "))
     given_cell_row = int(input("Enter the row of cell for which you want to compute Belief : "))
     given_cell_col = int(input("Enter the col of cell for which you want to compute Belief : "))

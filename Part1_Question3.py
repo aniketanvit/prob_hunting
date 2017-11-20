@@ -34,11 +34,9 @@ def main():
         bot_for_target_present.reset()
         bot_for_target_found.reset()
 
-    print(PRESENT_PERFORMANCE)
-    print(FOUND_PERFORMANCE)
     plt.plot (PRESENT_PERFORMANCE, FOUND_PERFORMANCE, linestyle='', marker='o', color='b')
-    plt.ylabel ('Searches taken using Rule 1')
-    plt.xlabel ('Searches taken using Rule 2')
+    plt.xlabel ('Searches taken using Rule 1')
+    plt.ylabel ('Searches taken using Rule 2')
     plt.title ('Performance measure - Rule 1 vs Rule 2')
     plt.show ()
 
