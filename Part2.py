@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import random
 import numpy as np
 from enum import Enum
@@ -8,30 +9,35 @@ class Terrain(Enum):
     FOREST = 2,
     CAVE = 3
 
-class ProbabilisticHunting:
+class ProbabilisticHuntingPart2:
 
     def __init__(self, dimension):
         self.Map = []
         self.Belief = []
         self.tempBelief = []
+        self.Belief_Found = []
         self.dimension = dimension
-
-        self.currentTime = 0
-        self.beta = 1
 
         self.NotFound_given_Present_Flat = 0.1
         self.NotFound_given_Present_Hilly = 0.3
         self.NotFound_given_Present_Forest = 0.7
         self.NotFound_given_Present_Cave = 0.9
 
+        self._initialiseMap()
+        self._reset()
+
+    def _reset(self):
+        self.Belief = []
+        self.tempBelief = []
+        self.Belief_Found = []
+        self.initialiseBelief()
+        self._initializeBeliefFound()
         self.target_i = 1
         self.target_j = 1
-
         self.previousTerrain1 = ''
         self.previousTerrain2 = ''
-
-        self._initialiseMap()
-        self.initialiseBelief()
+        self.currentTime = 0
+        self.beta = 1
 
     def getMap(self):
         return self.Map
@@ -85,6 +91,34 @@ class ProbabilisticHunting:
 
         self._setTarget()
 
+    def _initializeBeliefFound(self):
+
+        scaling_factor = 1
+
+        for i in range(0, self.dimension):
+            self.Belief_Found.append([])
+            for j in range(0, self.dimension):
+
+                if (self.Map[i][j] == Terrain.FLAT):
+                    scaling_factor = self.NotFound_given_Present_Flat
+                elif (self.Map[i][j] == Terrain.HILLY):
+                    scaling_factor = self.NotFound_given_Present_Hilly
+                elif (self.Map[i][j] == Terrain.FOREST):
+                    scaling_factor = self.NotFound_given_Present_Forest
+                else:
+                    scaling_factor = self.NotFound_given_Present_Cave
+
+                self.Belief_Found[i].append(self.Belief[i][j] * (1-scaling_factor))
+
+        temp_beta = 0
+        for ii in range (0, self.dimension):
+            for jj in range (0, self.dimension):
+                temp_beta += self.Belief_Found[ii][jj]
+
+        for ii in range (0, self.dimension):
+            for jj in range (0, self.dimension):
+                self.Belief_Found[ii][jj] /= temp_beta
+
     def _setTarget(self):
         self.target_i = random.randint(0, self.dimension - 1)
         self.target_j = random.randint(0, self.dimension - 1)
@@ -103,7 +137,70 @@ class ProbabilisticHunting:
                 self.Belief[i].append(1/(self.dimension * self.dimension))
                 self.tempBelief[i].append(0)
 
-    def updateBelief(self, i, j, ter1, ter2):
+    def updateBeliefTargetPresent (self, i, j):
+
+        scaling_factor = 1
+
+        if (self.Map[i][j] == Terrain.FLAT):
+            scaling_factor = self.NotFound_given_Present_Flat
+        elif (self.Map[i][j] == Terrain.HILLY):
+            scaling_factor = self.NotFound_given_Present_Hilly
+        elif (self.Map[i][j] == Terrain.FOREST):
+            scaling_factor = self.NotFound_given_Present_Forest
+        else:
+            scaling_factor = self.NotFound_given_Present_Cave
+
+        self.Belief[i][j] *= scaling_factor
+
+        self.beta = 0
+        for ii in range (0, self.dimension):
+            for jj in range (0, self.dimension):
+                self.beta += self.Belief[ii][jj]
+
+        for ii in range (0, self.dimension):
+            for jj in range (0, self.dimension):
+                self.Belief[ii][jj] /= self.beta
+
+        # self.currentTime += 1
+
+    def updateBeliefTargetFound(self, i, j):
+
+        scaling_factor = 1
+
+        if (self.Map[i][j] == Terrain.FLAT):
+            scaling_factor = self.NotFound_given_Present_Flat
+        elif (self.Map[i][j] == Terrain.HILLY):
+            scaling_factor = self.NotFound_given_Present_Hilly
+        elif (self.Map[i][j] == Terrain.FOREST):
+            scaling_factor = self.NotFound_given_Present_Forest
+        else:
+            scaling_factor = self.NotFound_given_Present_Cave
+
+        self.Belief[i][j] *= scaling_factor
+
+        self.beta = 0
+        for ii in range (0, self.dimension):
+            for jj in range (0, self.dimension):
+                self.beta += self.Belief[ii][jj]
+
+        for ii in range (0, self.dimension):
+            for jj in range (0, self.dimension):
+                self.Belief[ii][jj] /= self.beta
+
+        self.currentTime += 1
+
+        self.Belief_Found[i][j] = self.Belief[i][j] * (1-scaling_factor)
+
+        temp_beta = 0
+        for ii in range (0, self.dimension):
+            for jj in range (0, self.dimension):
+                temp_beta += self.Belief_Found[ii][jj]
+
+        for ii in range (0, self.dimension):
+            for jj in range (0, self.dimension):
+                self.Belief_Found[ii][jj] /= temp_beta
+
+    def updateBeliefSwap (self, i, j, ter1, ter2, rule):
         repeatTer1 = False
         repeatTer2 = False
         if(self.previousTerrain1):
@@ -128,12 +225,18 @@ class ProbabilisticHunting:
                                 possibleMoves21.append(pos)
 
                     if(len(possibleMoves12) > 0):
-                        currBelief = self.Belief[row][cell]
+                        if(rule == 'rule1'):
+                            currBelief = self.Belief[row][cell]
+                        elif(rule == 'rule2'):
+                            currBelief = self.Belief_Found[row][cell]
                         for x in possibleMoves12:
                             self.tempBelief[x[0]][x[1]] += currBelief / len(possibleMoves12)
 
                     if(len(possibleMoves21) > 0):
-                        currBelief = self.Belief[row][cell]
+                        if(rule == 'rule1'):
+                            currBelief = self.Belief[row][cell]
+                        elif(rule == 'rule2'):
+                            currBelief = self.Belief_Found[row][cell]
                         for x in possibleMoves21:
                             self.tempBelief[x[0]][x[1]] += currBelief / len(possibleMoves21)
 
@@ -155,7 +258,11 @@ class ProbabilisticHunting:
                     self.tempBelief[row][cell] = 0
 
         self.scaleBelief()
-        self.Belief = self.tempBelief
+        if(rule == 'rule1'):
+            self.Belief = self.tempBelief
+        elif(rule == 'rule2'):
+            self.Belief_Found = self.tempBelief
+        # self.Belief = self.tempBelief
         self.previousTerrain1 = ter1
         self.previousTerrain2 = ter2
 
@@ -191,8 +298,11 @@ class ProbabilisticHunting:
 
     # search Belief for the highest probability
     # if more than one found, select random
-    def getNextSearchCell(self):
-        arrayBelief = np.array(self.Belief)
+    def getNextSearchCell(self, rule):
+        if(rule == 'rule1'):
+            arrayBelief = np.array(self.Belief)
+        elif(rule == 'rule2'):
+            arrayBelief = np.array(self.Belief_Found)
         maxBelief = np.where(arrayBelief == arrayBelief.max())
         if(len(maxBelief[0]) > 1):
             choicePos = random.randrange(len(maxBelief[0]))
@@ -246,37 +356,65 @@ class ProbabilisticHunting:
         return str(self.Map[self.target_i][self.target_j])
 
 
-    def startHunt(self):
+    def startHunt(self, rule):
         # print('Target in: ' + str(self.target_i) + ', ' + str(self.target_j))
 
         self.currentTime = 0
         while(True):
-            (i, j) = self.getNextSearchCell()
+            (i, j) = self.getNextSearchCell(rule)
             # print('\nSearching: ' + str(i) + ', ' + str(j))
             found = self.targetFound(i, j)
             if(found):
                 print("Target Found")
-                # print('Time: ' + str(self.currentTime))
                 break
             else:
                 terrain_1 = self.getTerrain()
                 self.moveTarget()
                 terrain_2 = self.getTerrain()
-                print('Target moves on border: ' + str(terrain_1) + ' x ' + str(terrain_2) )
-                self.updateBelief(i, j, terrain_1, terrain_2)
+                # print('Target moves on border: ' + str(terrain_1) + ' x ' + str(terrain_2) )
+                if(rule == 'rule1'):
+                    self.updateBeliefTargetFound(i, j)
+                if(rule == 'rule2'):
+                    self.updateBeliefTargetPresent(i, j)
+                self.updateBeliefSwap(i, j, terrain_1, terrain_2, rule)
                 self.currentTime += 1
 
 
 def main():
-    results = []
+    results_rule1 = []
+    results_rule2 = []
     # ph = ProbabilisticHunting(50)
-    for i in range(20):
+    for i in range(40):
         ph = ProbabilisticHunting(50)
-        ph.startHunt()
-        results.append(ph.currentTime)
-        print(ph.currentTime)
-    print('Total times: '+str(results))
-    print('Average Time: ' + str(np.mean(results)))
+        print('\nNew Map Generated')
+        print('Hunting on Rule1')
+        ph.startHunt('rule1')
+        results_rule1.append(ph.currentTime)
+        ph._reset()
+        print('Hunting on Rule2')
+        ph.startHunt('rule2')
+        results_rule2.append(ph.currentTime)
+    print('Total times for Rule1: '+str(results_rule1))
+    print('Average Time for Rule1: ' + str(np.mean(results_rule1)))
+    print('Total times for Rule2: '+str(results_rule2))
+    print('Average Time for Rule2: ' + str(np.mean(results_rule2)))
+    plt.plot (results_rule1, results_rule2, linestyle='', marker='o', color='b')
+    plt.ylabel ('Searches taken to search the target using Rule 2')
+    plt.xlabel ('Searches taken to search the target using Rule 1')
+    x1 = max(results_rule1)
+    y1 = max(results_rule2)
+    xy = max(x1, y1)
+    plt.plot ([0,xy], [0, xy], linestyle='-', marker='o', color='red')
+
+    # plt.gca().set_color_cycle(['red', 'blue'])
+    # plt.plot(results_rule1)
+    # plt.plot(results_rule2)
+    # plt.xlabel ('Search Iteration')
+    # plt.ylabel ('Search Count')
+
+    plt.title ('Performance measure for Part 2 (Moving Target) - Rule 1 vs Rule 2')
+    # plt.legend(['Rule 1', 'Rule 2'], loc='upper left')
+    plt.show ()
 
 if __name__ == '__main__':
     main()
