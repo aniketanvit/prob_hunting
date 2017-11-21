@@ -10,7 +10,7 @@ class Terrain(Enum):
     CAVE = 3
 
 class ProbabilisticHuntingPart2:
-
+    # initialize all variables
     def __init__(self, dimension):
         self.Map = []
         self.Belief = []
@@ -26,6 +26,7 @@ class ProbabilisticHuntingPart2:
         self._initialiseMap()
         self._reset()
 
+    # reset variables to resuse for multiple iterations
     def _reset(self):
         self.Belief = []
         self.tempBelief = []
@@ -39,9 +40,12 @@ class ProbabilisticHuntingPart2:
         self.currentTime = 0
         self.beta = 1
 
+    # get MAP object
     def getMap(self):
         return self.Map
 
+    # Initialize and setup a Map with various terrains
+    # Terrains are randomly distributed with predefined probabilities
     def _initialiseMap(self):
 
         self.beta = 1
@@ -91,6 +95,7 @@ class ProbabilisticHuntingPart2:
 
         self._setTarget()
 
+    # initialize Belief_Found matrix to find the belief at forward time
     def _initializeBeliefFound(self):
 
         scaling_factor = 1
@@ -119,16 +124,19 @@ class ProbabilisticHuntingPart2:
             for jj in range (0, self.dimension):
                 self.Belief_Found[ii][jj] /= temp_beta
 
+    # set target at a uniform random location on the map
     def _setTarget(self):
         self.target_i = random.randint(0, self.dimension - 1)
         self.target_j = random.randint(0, self.dimension - 1)
 
+    # display the terrains on the map
     def showMap(self):
         for i in range(self.dimension):
             for j in range(self.dimension):
                 print(self.Map[i][j].name, end = " ")
             print()
 
+    # initialize the Belief Matrix
     def initialiseBelief(self):
         for i in range(0, self.dimension):
             self.Belief.append([])
@@ -137,6 +145,9 @@ class ProbabilisticHuntingPart2:
                 self.Belief[i].append(1/(self.dimension * self.dimension))
                 self.tempBelief[i].append(0)
 
+    # Update the belief based on Rule 1 defined in the question in Part 1
+    # Belief is updated for both the cell searched (i,j) and for the
+    # remaining cells.
     def updateBeliefTargetPresent (self, i, j):
 
         scaling_factor = 1
@@ -163,6 +174,9 @@ class ProbabilisticHuntingPart2:
 
         # self.currentTime += 1
 
+    # Update the Belief_Found Matrix based on Rule 2 defined in the question in Part 1
+    # Belief is updated for both the cell searched (i,j) and for the
+    # remaining cells.
     def updateBeliefTargetFound(self, i, j):
 
         scaling_factor = 1
@@ -200,6 +214,8 @@ class ProbabilisticHuntingPart2:
             for jj in range (0, self.dimension):
                 self.Belief_Found[ii][jj] /= temp_beta
 
+    # Update the Belief/Belief_Found matrix(rule specific) based on the target
+    # moving from ter1 and ter2 that was witnessed.
     def updateBeliefSwap (self, i, j, ter1, ter2, rule):
         repeatTer1 = False
         repeatTer2 = False
@@ -211,8 +227,10 @@ class ProbabilisticHuntingPart2:
 
         for row in range(0, self.dimension):
             for cell in range(0, self.dimension):
+                # based on the visual input, we know that the target moved
+                # from ter1 to ter2 or ter2 to ter1, hence we swap probabilities
+                # for these cells and redistribute them based on possible moves
                 if(str(self.Map[row][cell]) == str(ter1)) or (str(self.Map[row][cell]) == str(ter2)):
-                    # continue
                     possibleMoves12 = []
                     possibleMoves21 = []
                     options = self.findAjacent(row, cell)
@@ -230,6 +248,9 @@ class ProbabilisticHuntingPart2:
                         elif(rule == 'rule2'):
                             currBelief = self.Belief_Found[row][cell]
                         for x in possibleMoves12:
+                            # tempBelief stores the possible moves after swapping
+                            # We divide the probability to all the cells where
+                            # the move is possible
                             self.tempBelief[x[0]][x[1]] += currBelief / len(possibleMoves12)
 
                     if(len(possibleMoves21) > 0):
@@ -238,11 +259,14 @@ class ProbabilisticHuntingPart2:
                         elif(rule == 'rule2'):
                             currBelief = self.Belief_Found[row][cell]
                         for x in possibleMoves21:
+                            # tempBelief stores the possible moves after swapping
+                            # We divide the probability to all the cells where
+                            # the move is possible
                             self.tempBelief[x[0]][x[1]] += currBelief / len(possibleMoves21)
 
-                    # we check if a terrain has been repeated from before
-                    # if so, we set it to zero, since we know for sure that the
-                    # the target has moved from there to next terrain
+        # we check if a terrain has been repeated from before
+        # if so, we set it to zero, since we know for sure that the
+        # the target has moved from there to next terrain
         for row in range(0, self.dimension):
             for cell in range(0, self.dimension):
                 if(str(self.Map[row][cell]) == str(ter1)) or (str(self.Map[row][cell]) == str(ter2)):
@@ -257,15 +281,20 @@ class ProbabilisticHuntingPart2:
                 else:
                     self.tempBelief[row][cell] = 0
 
+        # probabilities are scaled to unity
         self.scaleBelief()
+
         if(rule == 'rule1'):
             self.Belief = self.tempBelief
         elif(rule == 'rule2'):
             self.Belief_Found = self.tempBelief
-        # self.Belief = self.tempBelief
+
+        # store the terrain movement that was witnessed so that it can be used
+        # at a later stage
         self.previousTerrain1 = ter1
         self.previousTerrain2 = ter2
 
+    # Temp Belief is scaled to unity
     def scaleBelief(self):
         total = 0
         for row in self.tempBelief:
@@ -278,6 +307,8 @@ class ProbabilisticHuntingPart2:
                     if(self.tempBelief[row][cell] > 0):
                         self.tempBelief[row][cell] /= total
 
+    # We search the cell (i,j) to check if the target is present in a cell if
+    # it can be found or not based on the difficulty of the cell
     def targetFound(self, i, j):
         success_probability = 1
         if(self.target_i != i or self.target_j != j):
@@ -310,6 +341,8 @@ class ProbabilisticHuntingPart2:
         else:
             return maxBelief[0][0], maxBelief[1][0]
 
+    # return an array of adjacent cells for a given cell. Takes into account
+    # moves at the border cells
     def findAjacent(self, i, j):
         if(i == 0):
             if(j == 0):
@@ -344,9 +377,9 @@ class ProbabilisticHuntingPart2:
 
         return options
 
+    # move the target to the an adjacent cell
     def moveTarget(self):
-        # generate a random move to next cell
-        # print(self.Map[self.target_i][self.target_j])
+        # generate a random move to next/adjacent cell
         options = self.findAjacent(self.target_i, self.target_j)
         move = random.choice(options)
         self.target_i = move[0]
@@ -361,21 +394,30 @@ class ProbabilisticHuntingPart2:
 
         self.currentTime = 0
         while(True):
+            # find the next cell to search in based on the highest
+            # probability in Belief/Belief_Found
             (i, j) = self.getNextSearchCell(rule)
             # print('\nSearching: ' + str(i) + ', ' + str(j))
             found = self.targetFound(i, j)
             if(found):
+                # if target is found, exit
                 print("Target Found")
                 break
             else:
+                # if the target isn't found, get the current terrain
                 terrain_1 = self.getTerrain()
+                # move the target
                 self.moveTarget()
+                # get the current terrain again
                 terrain_2 = self.getTerrain()
                 # print('Target moves on border: ' + str(terrain_1) + ' x ' + str(terrain_2) )
+                # update the probability for cell searched and remaining cells.
                 if(rule == 'rule1'):
                     self.updateBeliefTargetFound(i, j)
                 if(rule == 'rule2'):
                     self.updateBeliefTargetPresent(i, j)
+                # based on the terrain movement, swap and scale the believes
+                # of the system
                 self.updateBeliefSwap(i, j, terrain_1, terrain_2, rule)
                 self.currentTime += 1
 
@@ -411,9 +453,9 @@ def main():
     # plt.plot(results_rule2)
     # plt.xlabel ('Search Iteration')
     # plt.ylabel ('Search Count')
+    # plt.legend(['Rule 1', 'Rule 2'], loc='upper left')
 
     plt.title ('Performance measure for Part 2 (Moving Target) - Rule 1 vs Rule 2')
-    # plt.legend(['Rule 1', 'Rule 2'], loc='upper left')
     plt.show ()
 
 if __name__ == '__main__':
