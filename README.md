@@ -1,7 +1,8 @@
 Packages used :
-Tkinter - for visualisation
-Matplotlib - for plots
+Tkinter - for visualisation, 
+Matplotlib - for plots, 
 Numpy - for array manipulation
+
 
 Naming of files:
 There is a file corresponding to each part of both questions. If you want to see the output for any part, go to the corresponding file and run the main() method in that file.
