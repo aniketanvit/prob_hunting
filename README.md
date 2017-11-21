@@ -22,4 +22,4 @@ ProbabilisticHunting_WithCost_Rule1 - This class implements the search behaviour
 
 ProbabilisticHunting_WithCost_Rule2 - This class implements the search behaviour which takes into account the cost of moving as well as the belief for the target being found in that cell. (Rule 2 with cost for moving)
 
-ProbabilisticHuntingPart2: This class is for part 2 of the assignment where the target moves after every iteration. Implemented with Rule1 and Rule2. Function def inline.
+ProbabilisticHuntingPart2: This class is for part 2 of the assignment where the target moves after every iteration. Implemented with Rule1 and Rule2. Function def inline. Code returns average times for searches required for searching the same map with Rule1 and Rule2 for a moving target.
